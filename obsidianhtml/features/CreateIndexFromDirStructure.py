@@ -44,7 +44,7 @@ class CreateIndexFromDirStructure:
         path_str = path.as_posix()
         rel_path_str = path_str.replace(self.root_str, "", 1)
 
-        return {"name": path.name, "path": path.as_posix(), "rel_path": rel_path_str, "folders": folders, "files": files}
+        return {"name": path.name, "modified_time": path.stat().st_mtime, "path": path.as_posix(), "rel_path": rel_path_str, "folders": folders, "files": files}
 
     def build_exclude_list(self):
         """convert possible glob patterns to paths (str)"""
@@ -137,14 +137,14 @@ class CreateIndexFromDirStructure:
             path_str = path.as_posix()
             rel_path_str = path_str.replace(self.root_str, "", 1)
 
-            tree["files"].append({"name": path.stem, "suffix": path.suffix, "graph_name": name, "path": path.as_posix(), "rel_path": rel_path_str, "is_note": is_note})
+            tree["files"].append({"name": path.stem, "modified_time": path.stat().st_mtime, "suffix": path.suffix, "graph_name": name, "path": path.as_posix(), "rel_path": rel_path_str, "is_note": is_note})
 
         return tree
 
     def sort_tree(self):
         def _recurse(tree):
-            tree["folders"] = sorted(tree["folders"], key=lambda d: d["name"])
-            tree["files"] = sorted(tree["files"], key=lambda d: d["name"])
+            tree["folders"] = sorted(tree["folders"], key=lambda d: d["modified_time"])
+            tree["files"] = sorted(tree["files"], key=lambda d: d["modified_time"])
             for folder in tree["folders"]:
                 _recurse(folder)
 
